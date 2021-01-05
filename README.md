@@ -9,7 +9,7 @@ The script needs Python to convert the `.h5` dataset files to `.txt` files, read
 
 1. Clone the repo
    ```bash
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/theodumont/bash-sgd.git
    ```
 2. Install pip packages (numpy, h5py)
    ```bash
