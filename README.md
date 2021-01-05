@@ -20,6 +20,10 @@ The script needs Python to convert the `.h5` dataset files to `.txt` files, read
    bash sgd.sh [nb_epochs] [learning_rate]
    ```
 
+## Note
+The script is in debug mode (only 2 epochs and small portion of dataset used).
+
+
 ## Acknowledgements
 
 - I used the [deeplearning.ai](https://www.coursera.org/learn/neural-networks-deep-learning?) Cat-Non-Cat dataset that I found on [this non-official repository](https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/tree/master/datasets).
