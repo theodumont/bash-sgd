@@ -17,7 +17,7 @@ The script needs Python to convert the `.h5` dataset files to `.txt` files, read
    ```
 3. Run bash script
    ```bash
-   bash nn.sh [nb_epochs] [learning_rate]
+   bash sgd.sh [nb_epochs] [learning_rate]
    ```
 
 ## Acknowledgements
