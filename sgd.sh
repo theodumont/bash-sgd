@@ -13,6 +13,16 @@ if [[ ! -f "sgd.sh" ]]; then
     exit 1
 fi
 
+# we install some required Python packages
+echo "# Additional Python packages"
+pip install numpy h5py
+if [[ $? -ne 0 ]]; then
+    echo "Download of additional Python packages has failed."
+    echo "Exiting..."
+    exit 1
+fi
+echo
+
 
 # VARIABLES ====================================================================
 # We define some training variables.

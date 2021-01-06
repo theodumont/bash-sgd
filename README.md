@@ -11,17 +11,19 @@ The script needs Python to convert the `.h5` dataset files to `.txt` files, read
    ```bash
    git clone https://github.com/theodumont/bash-sgd.git
    ```
-2. Install pip packages (numpy, h5py)
+2. Create a virtual environment, for instance using anaconda.
    ```bash
-   pip install -r requirements.txt
+   conda create -n bash-sgd python==3.8
+   conda activate bash-sgd
    ```
-3. Run bash script
+   The script will install the required packages for Python (`numpy` and `h5py`).
+3. Run the bash script
    ```bash
    bash sgd.sh [nb_epochs] [learning_rate]
    ```
 
 ## Note
-The script is in debug mode (only 2 epochs and small portion of dataset used).
+The script is in debug mode (only 2 epochs and small portion of dataset & images pixels are used).
 
 
 ## Acknowledgements
