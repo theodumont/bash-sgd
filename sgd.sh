@@ -45,11 +45,11 @@ echo
 echo "# Dataset"
 
 # we download the .h5 files if not already done before
+mkdir "$PWD/dataset"
 TRAIN_H5_PATH="$PWD/dataset/train_catvnoncat.h5"
 TEST_H5_PATH="$PWD/dataset/test_catvnoncat.h5"
 TRAIN_H5_LINK="https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/raw/master/datasets/train_catvnoncat.h5"
 TEST_H5_LINK="https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/raw/master/datasets/test_catvnoncat.h5"
-PYTHON_GENERATOR_PATH="$PWD/dataset/generate.py"
 
 
 if [[ ! -f $TRAIN_H5_PATH ]]; then
@@ -91,16 +91,39 @@ else
     fi
 fi
 
-# checking that the generate.py file is present
-if [[ ! -f $PYTHON_GENERATOR_PATH ]]; then
-    echo "File $PYTHON_GENERATOR_PATH does not exist. Are you sure you cloned the whole repo at [link to repo]?"
-    echo "Exiting..."
-    exit 1
-fi
 
-# launching the generate.py script to produce .txt files
+# launching the python script to produce .txt files
 echo "Generating .txt dataset from .h5 files..."
-python3 $PWD/dataset/generate.py --dataset_path $PWD/dataset
+$PYTHON_SOFT - <<END_SCRIPT
+import os
+import sys
+import numpy as np
+import h5py
+
+if sys.version_info < (3,5,0):
+    sys.stderr.write("You need python 3.5 or later to run this script\n")
+    sys.exit(1)
+
+# load .h5 files
+train_dataset = h5py.File(os.path.join('$PWD', 'dataset', 'train_catvnoncat.h5'), 'r')
+test_dataset = h5py.File(os.path.join('$PWD', 'dataset', 'test_catvnoncat.h5'), "r")
+train_set_x = np.array(train_dataset["train_set_x"][:])
+train_set_y = np.array(train_dataset["train_set_y"][:])
+test_set_x = np.array(test_dataset["test_set_x"][:])
+test_set_y = np.array(test_dataset["test_set_y"][:])
+classes = np.array(test_dataset["list_classes"][:])
+
+# flatten matrices
+train_set_x = train_set_x.reshape((train_set_x.shape[0], -1))
+test_set_x = test_set_x.reshape((test_set_x.shape[0], -1))
+
+# save .txt files
+np.savetxt(os.path.join('$PWD', 'dataset', 'train_samples.txt'), train_set_x[:20,:10], fmt='%i', delimiter=" ", newline="\n")
+np.savetxt(os.path.join('$PWD', 'dataset', 'test_samples.txt'), test_set_x[:20,:10], fmt='%i', delimiter=" ", newline="\n")
+np.savetxt(os.path.join('$PWD', 'dataset', 'train_labels.txt'), train_set_y[:20], fmt='%i', delimiter=" ", newline="\n")
+np.savetxt(os.path.join('$PWD', 'dataset', 'test_labels.txt'), test_set_y[:20], fmt='%i', delimiter=" ", newline="\n")
+END_SCRIPT
+
 if [[ $? -ne 0 ]]; then
     echo "The python script has failed somehow."
     echo "Exiting..."
@@ -115,6 +138,7 @@ TEST_LABELS_PATH="$PWD/dataset/test_labels.txt"
 
 # check existence of .txt files
 # (for safety, must have been created by the script before)
+# if they are not present, then the following lines will still run but do bad things
 for file in $TRAIN_SAMPLES_PATH $TRAIN_LABELS_PATH \
             $TEST_SAMPLES_PATH $TEST_LABELS_PATH; do
     if [[ ! -f $file ]]; then
