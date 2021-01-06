@@ -41,24 +41,27 @@ TRAIN_H5_LINK="https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-imple
 TEST_H5_LINK="https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/raw/master/datasets/test_catvnoncat.h5"
 PYTHON_GENERATOR_PATH="$PWD/dataset/generate.py"
 
+
 if [[ ! -f $TRAIN_H5_PATH ]]; then
     echo "Downloading file $TRAIN_H5_PATH"
     wget -O $TRAIN_H5_PATH $TRAIN_H5_LINK
+    if [[ $? -ne 0 ]]; then
+        echo "Download of https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/blob/master/datasets/train_catvnoncat.h5 has failed."
+        echo "Exiting..."
+        exit 1
+    fi
     echo "File $TRAIN_H5_PATH downloaded"
 fi
 if [[ ! -f $TEST_H5_PATH ]]; then
     echo "Downloading file $TEST_H5_PATH"
     wget -O $TEST_H5_PATH $TEST_H5_LINK
-    echo "File $TEST_H5_PATH downloaded"
-fi
-
-for file in $TRAIN_H5_PATH $TEST_H5_PATH; do
-    if [[ ! -f $file ]]; then
-        echo "File $file does not exist. Download from https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/blob/master/datasets/[train,test]_catvnoncat.h5 must have failed."
+    if [[ $? -ne 0 ]]; then
+        echo "Download of https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/blob/master/datasets/test_catvnoncat.h5 has failed."
         echo "Exiting..."
         exit 1
     fi
-done
+    echo "File $TEST_H5_PATH downloaded"
+fi
 
 echo ".h5 files downloaded."
 
