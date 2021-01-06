@@ -13,8 +13,6 @@ if [[ ! -f "sgd.sh" ]]; then
     exit 1
 fi
 
-NN_DIR=$PWD
-
 
 # VARIABLES ====================================================================
 # We define some training variables.
@@ -37,11 +35,11 @@ echo
 echo "# Dataset"
 
 # we download the .h5 files if not already done before
-TRAIN_H5_PATH="$NN_DIR/dataset/train_catvnoncat.h5"
-TEST_H5_PATH="$NN_DIR/dataset/test_catvnoncat.h5"
+TRAIN_H5_PATH="$PWD/dataset/train_catvnoncat.h5"
+TEST_H5_PATH="$PWD/dataset/test_catvnoncat.h5"
 TRAIN_H5_LINK="https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/raw/master/datasets/train_catvnoncat.h5"
 TEST_H5_LINK="https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/raw/master/datasets/test_catvnoncat.h5"
-PYTHON_GENERATOR_PATH="$NN_DIR/dataset/generate.py"
+PYTHON_GENERATOR_PATH="$PWD/dataset/generate.py"
 
 if [[ ! -f $TRAIN_H5_PATH ]]; then
     echo "Downloading file $TRAIN_H5_PATH"
@@ -89,7 +87,7 @@ fi
 
 # launching the generate.py script to produce .txt files
 echo "Generating .txt dataset from .h5 files..."
-python3 $NN_DIR/dataset/generate.py --dataset_path $NN_DIR/dataset
+python3 $PWD/dataset/generate.py --dataset_path $PWD/dataset
 if [[ $? -ne 0 ]]; then
     echo "The python script has failed somehow."
     echo "Exiting..."
@@ -97,10 +95,10 @@ if [[ $? -ne 0 ]]; then
 fi
 echo ".txt dataset generated."
 
-TRAIN_SAMPLES_PATH="$NN_DIR/dataset/train_samples.txt"
-TRAIN_LABELS_PATH="$NN_DIR/dataset/train_labels.txt"
-TEST_SAMPLES_PATH="$NN_DIR/dataset/test_samples.txt"
-TEST_LABELS_PATH="$NN_DIR/dataset/test_labels.txt"
+TRAIN_SAMPLES_PATH="$PWD/dataset/train_samples.txt"
+TRAIN_LABELS_PATH="$PWD/dataset/train_labels.txt"
+TEST_SAMPLES_PATH="$PWD/dataset/test_samples.txt"
+TEST_LABELS_PATH="$PWD/dataset/test_labels.txt"
 
 # check existence of .txt files
 # (for safety, must have been created by the script before)
