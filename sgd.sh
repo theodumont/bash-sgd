@@ -27,8 +27,6 @@ echo
 # VARIABLES ====================================================================
 # We define some training variables.
 
-e=2.71828
-
 echo "# Parameters"
 nb_epochs=${1:-"2"}
 learning_rate=${2:-"0.001"}
@@ -54,7 +52,7 @@ TEST_H5_LINK="https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implem
 
 if [[ ! -f $TRAIN_H5_PATH ]]; then
     echo "Downloading file $TRAIN_H5_PATH"
-    wget -O $TRAIN_H5_PATH $TRAIN_H5_LINK
+    wget -O "$TRAIN_H5_PATH" "$TRAIN_H5_LINK"
     if [[ $? -ne 0 ]]; then
         echo "Download of https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/blob/master/datasets/train_catvnoncat.h5 has failed."
         echo "Exiting..."
@@ -64,7 +62,7 @@ if [[ ! -f $TRAIN_H5_PATH ]]; then
 fi
 if [[ ! -f $TEST_H5_PATH ]]; then
     echo "Downloading file $TEST_H5_PATH"
-    wget -O $TEST_H5_PATH $TEST_H5_LINK
+    wget -O "$TEST_H5_PATH" "$TEST_H5_LINK"
     if [[ $? -ne 0 ]]; then
         echo "Download of https://github.com/ridhimagarg/Cat-vs-Non-cat-Deep-learning-implementation/blob/master/datasets/test_catvnoncat.h5 has failed."
         echo "Exiting..."
@@ -152,21 +150,21 @@ done
 for file in $TRAIN_SAMPLES_PATH $TRAIN_LABELS_PATH \
             $TEST_SAMPLES_PATH $TEST_LABELS_PATH; do
     tempfile="$file.$$.tmp"
-    sed 's/\r$//' $file > $tempfile
-    mv $tempfile $file
+    sed 's/\r$//' "$file" > "$tempfile"
+    mv "$tempfile" "$file"
 
 done
 
 # we put train/test samples/labels into arrays
 # IFS and -d are delimiters
 echo -ne 'Loading dataset:  [    ]  (0%)\r'
-IFS=$'\n' read -d '' -a TRAIN_SAMPLES < $TRAIN_SAMPLES_PATH
+IFS=$'\n' read -d '' -a TRAIN_SAMPLES < "$TRAIN_SAMPLES_PATH"
 echo -ne 'Loading dataset:  [#   ]  (25%)\r'
-IFS=$'\n' read -d '' -a TRAIN_LABELS < $TRAIN_LABELS_PATH
+IFS=$'\n' read -d '' -a TRAIN_LABELS < "$TRAIN_LABELS_PATH"
 echo -ne 'Loading dataset:  [##  ]  (50%)\r'
-IFS=$'\n' read -d '' -a TEST_SAMPLES < $TEST_SAMPLES_PATH
+IFS=$'\n' read -d '' -a TEST_SAMPLES < "$TEST_SAMPLES_PATH"
 echo -ne 'Loading dataset:  [### ]  (75%)\r'
-IFS=$'\n' read -d '' -a TEST_LABELS < $TEST_LABELS_PATH
+IFS=$'\n' read -d '' -a TEST_LABELS < "$TEST_LABELS_PATH"
 echo -ne 'Loading dataset:  [####]  (100%)\r'
 echo
 
@@ -177,19 +175,19 @@ nb_test_samples=${#TEST_SAMPLES[*]}
 nb_test_labels=${#TEST_LABELS[*]}
 
 # check each sample has a label
-if [[ $nb_train_samples != $nb_train_labels ]]; then
+if [[ $nb_train_samples != "$nb_train_labels" ]]; then
     echo "Different number of samples ($nb_train_samples) and labels ($nb_train_labels)."
     echo "Exiting..."
     exit 1
 fi
-if [[ $nb_test_samples != $nb_test_labels ]]; then
+if [[ $nb_test_samples != "$nb_test_labels" ]]; then
     echo "Different number of samples ($nb_test_samples) and labels ($nb_test_labels)."
     echo "Exiting..."
     exit 1
 fi
 
 # get number of pixels in images
-nb_pixels=`echo "${TRAIN_SAMPLES[0]}" | wc -w`
+nb_pixels=$(echo "${TRAIN_SAMPLES[0]}" | wc -w)
 
 echo -e "training samples: $nb_train_samples    test samples: $nb_test_samples    pixels: $nb_pixels"
 echo
@@ -198,7 +196,7 @@ echo
 # We initialize the model with parameters W (weights) and b (bias) equal to zero.
 
 declare -a W
-for (( p = 0; p < $nb_pixels; p++ )); do
+for (( p = 0; p < nb_pixels; p++ )); do
     W[$p]="0"
 done
 b="0"
@@ -213,11 +211,11 @@ echo "# Training"
 
 
 # loop over epochs
-for (( epoch = 0; epoch < $nb_epochs; epoch++ )); do
+for (( epoch = 0; epoch < nb_epochs; epoch++ )); do
 
     # loop over train samples
-    for (( s = 0; s < $nb_train_samples; s++ )); do
-        echo -ne "[$[$epoch+1]/$nb_epochs] training...  (`echo "100 * $s / $nb_train_samples" | bc`%)\r"
+    for (( s = 0; s < nb_train_samples; s++ )); do
+        echo -ne "[$((epoch+1))/$nb_epochs] training...  ($(echo "100 * $s / $nb_train_samples" | bc)%)\r"
 
         # TRAIN ================================================================
         # Each training step is composed of a forward pass (in which we compute
@@ -232,7 +230,7 @@ for (( epoch = 0; epoch < $nb_epochs; epoch++ )); do
         SAMPLE=${TRAIN_SAMPLES[s]}
         w=0
         for NUMBER in $SAMPLE; do
-            IMAGE[$w]=`echo "scale=10; $NUMBER / 365" | bc`
+            IMAGE[$w]=$(echo "scale=10; $NUMBER / 365" | bc)
             (( w++ ))
         done
         # get label
@@ -242,42 +240,42 @@ for (( epoch = 0; epoch < $nb_epochs; epoch++ )); do
 
         # compute z
         z=0
-        for (( p = 0; p < $nb_pixels; p++ )); do
-            z=`echo "$z + ${W[$p]} * ${IMAGE[$p]} + $b" | bc`                   # z = Wx+b
+        for (( p = 0; p < nb_pixels; p++ )); do
+            z=$(echo "$z + ${W[$p]} * ${IMAGE[$p]} + $b" | bc)                   # z = Wx+b
         done
         # compute a
-        a=`echo "1/(1+e((-1)*$z))" | bc -l`                                     # a = sigmoid(z)
+        a=$(echo "1/(1+e((-1)*$z))" | bc -l)                                     # a = sigmoid(z)
         # compute cost
-        cost=`echo "- ( $label * l($a) + (1-$label) * l(1-$a) )" | bc -l`       # cost = - ( y * log(a) + (1-y) * log(1-a) )
+        cost=$(echo "- ( $label * l($a) + (1-$label) * l(1-$a) )" | bc -l)       # cost = - ( y * log(a) + (1-y) * log(1-a) )
 
 
         # BACKWARD -------------------------------------------------------------
 
         # compute dW
         declare -a dW
-        for (( p = 0; p < $nb_pixels; p++ )); do
-            dW[$p]=`echo "${IMAGE[$p]} * ( $a - $label )" | bc`                 # dW = x * (a - y)
+        for (( p = 0; p < nb_pixels; p++ )); do
+            dW[$p]=$(echo "${IMAGE[$p]} * ( $a - $label )" | bc)                 # dW = x * (a - y)
         done
         # compute db
-        db=`echo "$a - $label" | bc`                                            # db = a - y
+        db=$(echo "$a - $label" | bc)                                            # db = a - y
 
 
         # UPDATE WEIGHTS -------------------------------------------------------
 
         # update W
-        for (( p = 0; p < $nb_pixels; p++ )); do
-            W[$p]=`echo "${W[$p]} - $learning_rate * ${dW[$p]}" | bc`           # W = W - lr * dW
+        for (( p = 0; p < nb_pixels; p++ )); do
+            W[$p]=$(echo "${W[$p]} - $learning_rate * ${dW[$p]}" | bc)           # W = W - lr * dW
         done
         # update b
-        b=`echo "$b - $learning_rate * $db" | bc`                               # b = b - lr * db
+        b=$(echo "$b - $learning_rate * $db" | bc)                               # b = b - lr * db
 
     done
 
 
     # loop over test samples
     test_cost=0
-    for (( s = 0; s < $nb_test_samples; s++ )); do
-        echo -ne "[$[$epoch+1]/$nb_epochs] testing...  (`echo "100 * $s / $nb_test_samples" | bc`%)  \r"
+    for (( s = 0; s < nb_test_samples; s++ )); do
+        echo -ne "[$((epoch+1))/$nb_epochs] testing...  ($(echo "100 * $s / $nb_test_samples" | bc)%)  \r"
 
         # TEST =================================================================
         # Each test step is composed of a forward pass (in which we compute the
@@ -291,7 +289,7 @@ for (( epoch = 0; epoch < $nb_epochs; epoch++ )); do
         SAMPLE=${TEST_SAMPLES[s]}
         w=0
         for NUMBER in $SAMPLE; do
-            IMAGE[$w]=`echo "scale=10; $NUMBER / 365" | bc`
+            IMAGE[$w]=$(echo "scale=10; $NUMBER / 365" | bc)
             (( w++ ))
         done
         # get label
@@ -301,29 +299,29 @@ for (( epoch = 0; epoch < $nb_epochs; epoch++ )); do
 
         # compute z
         z=0
-        for (( p = 0; p < $nb_pixels; p++ )); do
-            z=`echo "$z + ${W[$p]} * ${IMAGE[$p]} + $b" | bc`                   # z = Wx+b
+        for (( p = 0; p < nb_pixels; p++ )); do
+            z=$(echo "$z + ${W[$p]} * ${IMAGE[$p]} + $b" | bc)                   # z = Wx+b
         done
         # compute a
-        a=`echo "1/(1+e((-1)*$z))" | bc -l`                                     # a = sigmoid(z)
+        a=$(echo "1/(1+e((-1)*$z))" | bc -l)                                     # a = sigmoid(z)
         # compute cost
-        cost=`echo "- ( $label * l($a) + (1-$label) * l(1-$a) )" | bc -l`       # cost = - ( y * log(a) + (1-y) * log(1-a) )
-        test_cost=`echo "$test_cost + $cost" | bc -l`
+        cost=$(echo "- ( $label * l($a) + (1-$label) * l(1-$a) )" | bc -l)       # cost = - ( y * log(a) + (1-y) * log(1-a) )
+        test_cost=$(echo "$test_cost + $cost" | bc -l)
 
     done
 
-    test_cost=`echo "$test_cost / $nb_test_samples" | bc -l`
+    test_cost=$(echo "$test_cost / $nb_test_samples" | bc -l)
 
 
-    echo "[$[$epoch+1]/$nb_epochs] test cost: `echo "scale=5; $test_cost / 1" | bc`  "  # '/ 1' to use the scale
+    echo "[$((epoch+1))/$nb_epochs] test cost: $(echo "scale=5; $test_cost / 1" | bc)  "  # '/ 1' to use the scale
 
 done
 
 echo
 
 accuracy=0
-for (( s = 0; s < $nb_test_samples; s++ )); do
-    echo -ne "Training finished. Final accuracy: computing...  (`echo "100 * $s / $nb_test_samples" | bc`%)  \r"
+for (( s = 0; s < nb_test_samples; s++ )); do
+    echo -ne "Training finished. Final accuracy: computing...  ($(echo "100 * $s / $nb_test_samples" | bc)%)  \r"
 
     # GET IMAGE AND LABEL --------------------------------------------------
 
@@ -331,7 +329,7 @@ for (( s = 0; s < $nb_test_samples; s++ )); do
     SAMPLE=${TEST_SAMPLES[s]}
     w=0
     for NUMBER in $SAMPLE; do
-        IMAGE[$w]=`echo "scale=10; $NUMBER / 365" | bc`
+        IMAGE[$w]=$(echo "scale=10; $NUMBER / 365" | bc)
         (( w++ ))
     done
     # get label
@@ -341,21 +339,21 @@ for (( s = 0; s < $nb_test_samples; s++ )); do
 
     # compute z
     z=0
-    for (( p = 0; p < $nb_pixels; p++ )); do
-        z=`echo "$z + ${W[$p]} * ${IMAGE[$p]} + $b" | bc`                   # z = Wx+b
+    for (( p = 0; p < nb_pixels; p++ )); do
+        z=$(echo "$z + ${W[$p]} * ${IMAGE[$p]} + $b" | bc)                   # z = Wx+b
     done
     # compute a
-    a=`echo "1/(1+e((-1)*$z))" | bc -l`                                     # a = sigmoid(z)
+    a=$(echo "1/(1+e((-1)*$z))" | bc -l)                                     # a = sigmoid(z)
     # compute difference between a and label to decide prediction
-    diff=`echo "$a - $label" | bc`
+    diff=$(echo "$a - $label" | bc)
     diff=${diff#-}
-    if [[ `echo "$diff" | bc` < ".5" ]]; then
+    if [[ $(echo "$diff" | bc) < ".5" ]]; then
         # object is well-labeled
         (( accuracy++ ))
     fi
 
 done
 
-accuracy=`echo "100 * $accuracy / $nb_test_samples" | bc`
+accuracy=$(echo "100 * $accuracy / $nb_test_samples" | bc)
 
-echo -ne "Training finished. Final accuracy: `echo "scale=0; $accuracy / 1" | bc`%                \n"
+echo -ne "Training finished. Final accuracy: $(echo "scale=0; $accuracy / 1" | bc)%                \n"
